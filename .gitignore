@@ -1,0 +1,17 @@
+.vscode/
+
+**/CMakeFiles/
+**/Makefile
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/*.cmake
+bin/
+cmake-build-*/
+
+*.exe
+*.a
+*.so
+*.o
+
+
+**/*.sh
