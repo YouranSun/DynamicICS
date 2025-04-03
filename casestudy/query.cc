@@ -22,12 +22,13 @@
 
 clock_t stamp;
 
-inline void writeAns(int k, int r, FILE* file, std::vector<std::pair<double, std::vector<int> > > ans) {
+inline void writeAns(int k, int r, FILE* file, std::vector<std::pair<double, std::vector<int> > > ans, Graph *G) {
     // eprintf("ok\n");
+    eprintf("%zu\n", (G -> vids_in_e).size());
     fprintf(file, "k = %d r = %d\n", k, r);
     for (auto [val, S]: ans){
         fprintf(file, "%lf ", val);
-        for (auto u: S) fprintf(file, "%d ", u);
+        for (auto u: S) fprintf(file, "%lld ", (G -> vids_in_e)[u]);
         fprintf(file, "\n");
     }
 }
@@ -57,7 +58,7 @@ int main(int argc, char **argv){
         k = std::min(k, (dynamic -> index) -> k_max);
         KEEPTIME("start query = ", stamp);
         dynamic -> query(k, r, ans);
-        writeAns(k, r, outfile, ans);
+        writeAns(k, r, outfile, ans, dynamic -> G);
         eprintf("k = %d r = %d\n", k, r);
         KEEPTIME("query time = ", stamp);
     }

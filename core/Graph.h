@@ -17,6 +17,8 @@ public:
     std::vector<std::vector<int> > nei;
     std::vector<std::pair<int, int> > edges;
 
+    std::vector<long long> vids_in_e;
+
     long long mn_quarter;
     long long mx_quarter;
 
@@ -39,6 +41,7 @@ public:
         rnk.resize(n, 0);
         seq.resize(n, 0);
         core.resize(n, 0);
+        vids_in_e.resize(n, 0);
         nei.resize(n);
         edges.resize(m);
         return;
@@ -115,7 +118,7 @@ public:
             weights[vid] = vweight;
         }
 
-        std::vector<long long> vids_in_e;
+        vids_in_e.clear();
         std::vector<std::pair<std::pair<long long, long long>, long long> > vid_of_edges;
 
         mn_quarter = 1e18;
@@ -140,7 +143,7 @@ public:
         });
 
         vids_in_e.erase(std::unique(vids_in_e.begin(), vids_in_e.end()), vids_in_e.end());
-        
+
         n = vids_in_e.size();
         m = vid_of_edges.size();
         init();
@@ -196,6 +199,7 @@ public:
         core.resize(n);
         wei.resize(n);
         wei_ori.resize(n);
+        vids_in_e.resize(n);
         for (int i = 0; i < n; ++i) fscanf(file, "%d", &wei[i]);
         edges.resize(m + m2);
         for (int i = 0; i < m + m2; ++i){
@@ -205,6 +209,7 @@ public:
             if (i < m) nei[u].push_back(v), nei[v].push_back(u);
         }
         for (int i = 0; i < n; ++i) fscanf(file, "%lf ", &wei_ori[i]);
+        for (int i = 0; i < n; ++i) fscanf(file, "%lld", &vids_in_e[i]);
 
         eprintf("Graph ReadIndex End\n");
         return;
@@ -215,6 +220,7 @@ public:
         for (int i = 0; i < n; ++i) fprintf(file, "%d ", wei[i]); fputs("\n", file);
         for (int i = 0; i < m + m2; ++i) fprintf(file, "%d %d\n", edges[i].first, edges[i].second);
         for (int i = 0; i < n; ++i) fprintf(file, "%lf ", wei_ori[i]); fputs("\n", file);
+        for (int i = 0; i < n; ++i) fprintf(file, "%lld ", vids_in_e[i]); fputs("\n", file);
         return;
     }
 } ;

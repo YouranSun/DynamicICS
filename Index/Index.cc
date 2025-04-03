@@ -149,34 +149,33 @@ namespace INDEX {
         std::vector<int> ver;
         for (auto p: V) ver.push_back(p.first);
         int lst = -1;
-        // for (int i = (int)V.size() - 1; i >= 0; --i) {
-        //     tree[V[i].first].clear();
-        //     if (V[i].second) lst = V[i].first;
-        //     else tree[lst].push_back(V[i].first);
-        //     dsu.fa[V[i].first] = lst;
-        // }
+        for (int i = (int)V.size() - 1; i >= 0; --i) {
+            tree[V[i].first].clear();
+            if (V[i].second) lst = V[i].first;
+            else tree[lst].push_back(V[i].first);
+            dsu.fa[V[i].first] = lst;
+        }
         for (int i = 0; i < V.size(); ++i) {
             int u = V[i].first;
-            // for (auto v: (G -> nei)[u]) if (vis[v] == level) {
-            //     int x = dsu.find(u), y = dsu.find(v);
-            //     // eprintf("u = %d v = %d x = %d y = %d level = %d %d\n", u, v, x, y, level, vis[v]);
-            //     if (x != y) {
-            //         dsu.fa[y] = x;
-            //         tree[x].push_back(y);
-            //     }
-            // }
+            for (auto v: (G -> nei)[u]) if (vis[v] == level) {
+                int x = dsu.find(u), y = dsu.find(v);
+                // eprintf("u = %d v = %d x = %d y = %d level = %d %d\n", u, v, x, y, level, vis[v]);
+                if (x != y) {
+                    dsu.fa[y] = x;
+                    tree[x].push_back(y);
+                }
+            }
             if (V[i].second) {
                 std::vector<int> S;
-                S.push_back(u);
-                // dfs(u, tree, S);
-                double sum = (G -> wei_ori)[u];
-                for (int j = i - 1; j >= 0 && !V[j].second; --j) {
-                    int v = V[j].first;
-                    sum += (G -> wei_ori)[v];
-                    S.push_back(v);
-                }
-                // for (auto u: S) sum += (G -> wei_ori)[u];
-                // sum /= (int)S.size();
+                dfs(u, tree, S);
+                // double sum = (G -> wei_ori)[u];
+                // for (int j = i - 1; j >= 0 && !V[j].second; --j) {
+                //     int v = V[j].first;
+                //     sum += (G -> wei_ori)[v];
+                //     S.push_back(v);
+                // }
+                double sum = 0;
+                for (auto u: S) sum += (G -> wei_ori)[u];
                 sum /= (int)S.size();
                 ans.push_back(std::make_pair(sum, S));
             }
