@@ -1,5 +1,3 @@
-// Author: Yikai Zhang
-//
 // This file contains some useful macros.
 #ifndef CORE_DEFS_H_
 #define CORE_DEFS_H_
