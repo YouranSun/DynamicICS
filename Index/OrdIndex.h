@@ -2,6 +2,7 @@
 #define ORDINDEX_H
 
 #include "Index.h"
+#include "../gadget/Tools.h"
 
 namespace ORDINDEX {
     class OrdIndex: public INDEX::Index {

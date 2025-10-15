@@ -12,6 +12,7 @@ public:
     std::vector<double> wei_ori;
     std::vector<int> ord;
     std::vector<int> rnk;
+    std::vector<int> pgr;
     std::vector<int> seq;
     std::vector<int> core;
     std::vector<std::vector<int> > nei;
@@ -41,6 +42,7 @@ public:
         rnk.resize(n, 0);
         seq.resize(n, 0);
         core.resize(n, 0);
+        pgr.resize(n, 0);
         vids_in_e.resize(n, 0);
         nei.resize(n);
         edges.resize(m);
@@ -62,6 +64,54 @@ public:
         }
         std::sort(ord.begin(), ord.end(), [&](const int &i, const int &j) { return tmp[i] < tmp[j]; });
         for (int i = 0; i < n; ++i) wei[ord[i]] = i;
+    }
+
+    void pageRankWeighted(){
+        std::vector<double> tmp = wei_ori;
+        const int ITER_TIME = 200;
+        for (int T = 0; T < ITER_TIME; ++T) {
+            std::vector<double> ntmp(n, 0.0);
+            for (int u = 0; u < n; ++u) {
+                if (nei[u].size()){
+                    for (auto v: nei[u]) ntmp[u] += tmp[v];
+                    ntmp[u] /= nei[u].size();
+                }
+            }
+            tmp.swap(ntmp);
+        }
+        std::vector<int> ord_pgr(n);
+        for (int i = 0; i < n; ++i) ord_pgr[i] = i;
+        std::sort(ord_pgr.begin(), ord_pgr.end(), [&](const int &i, const int &j) { return tmp[i] < tmp[j]; });
+        for (int i = 0; i < n; ++i) pgr[ord[i]] = i;
+    }
+
+    std::vector<std::pair<int,int>> pick_powerlaw_edges(
+        const std::vector<std::pair<int,int>>& edges,
+        const std::vector<int>& degree,
+        int m2, double beta = 1.0)
+    {
+        std::vector<double> weights;
+        weights.reserve(edges.size());
+        for (auto [u,v] : edges) {
+            double w = pow(degree[u] + degree[v], -beta);
+            weights.push_back(w);
+        }
+
+        // 构造离散分布
+        std::discrete_distribution<int> dist(weights.begin(), weights.end());
+        std::mt19937 gen(42);
+
+        std::vector<std::pair<int,int>> chosen;
+        chosen.reserve(m2);
+
+        std::unordered_set<int> used; // 防止重复选择边
+        while ((int)chosen.size() < m2) {
+            int idx = dist(gen);
+            if (used.insert(idx).second) {
+                chosen.push_back(edges[idx]);
+            }
+        }
+        return chosen;
     }
 
     void read(const char *path){
@@ -97,9 +147,34 @@ public:
         // std::mt19937 rnd(2226701);
         // std::shuffle(edges.begin(), edges.end(), rnd);
 
-        for (int i = 0; i < m - m2; ++i) {
-            int u = edges[i].first, v = edges[i].second;
-            nei[u].push_back(v), nei[v].push_back(u);
+        // Formal one
+        // for (int i = 0; i < m - m2; ++i) {
+        //     int u = edges[i].first, v = edges[i].second;
+        //     nei[u].push_back(v), nei[v].push_back(u);
+        // }
+
+        // For power-law
+        // edges 已经存好了
+        std::vector<int> degree(n, 0);
+        for (auto [u,v] : edges) {
+            degree[u]++;
+            degree[v]++;
+        }
+
+        auto insert_edges = pick_powerlaw_edges(edges, degree, m2, /*beta=*/-1.0);
+
+        // 构造初始边集 = 所有边 - insert_edges
+        std::set<std::pair<int,int> > insert_set(
+            insert_edges.begin(), insert_edges.end());
+
+        int idx = 0;
+        for (int i = 0; i < m; ++i) {
+            auto [u,v] = edges[i];
+            if (!insert_set.count({u,v})) {
+                nei[u].push_back(v);
+                nei[v].push_back(u);
+                swap(edges[idx++], edges[i]);
+            }
         }
         m -= m2;
     }
@@ -188,6 +263,7 @@ public:
         m -= m2;
         in_v.close();
         in_e.close();
+        pageRankWeighted();
     }
 
     void readIndex(FILE *file){
@@ -198,6 +274,7 @@ public:
         nei.resize(n);
         core.resize(n);
         wei.resize(n);
+        pgr.resize(n);
         wei_ori.resize(n);
         vids_in_e.resize(n);
         for (int i = 0; i < n; ++i) fscanf(file, "%d", &wei[i]);
@@ -209,6 +286,7 @@ public:
             if (i < m) nei[u].push_back(v), nei[v].push_back(u);
         }
         for (int i = 0; i < n; ++i) fscanf(file, "%lf ", &wei_ori[i]);
+        for (int i = 0; i < n; ++i) fscanf(file, "%d ", &pgr[i]);
         for (int i = 0; i < n; ++i) fscanf(file, "%lld", &vids_in_e[i]);
 
         eprintf("Graph ReadIndex End\n");
@@ -220,6 +298,7 @@ public:
         for (int i = 0; i < n; ++i) fprintf(file, "%d ", wei[i]); fputs("\n", file);
         for (int i = 0; i < m + m2; ++i) fprintf(file, "%d %d\n", edges[i].first, edges[i].second);
         for (int i = 0; i < n; ++i) fprintf(file, "%lf ", wei_ori[i]); fputs("\n", file);
+        for (int i = 0; i < n; ++i) fprintf(file, "%d ", pgr[i]); fputs("\n", file);
         for (int i = 0; i < n; ++i) fprintf(file, "%lld ", vids_in_e[i]); fputs("\n", file);
         return;
     }

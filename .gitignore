@@ -15,3 +15,5 @@ cmake-build-*/
 
 
 **/*.sh
+
+data/

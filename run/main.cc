@@ -74,10 +74,12 @@ inline void testInsert(char *savepath, char *outpath, int m2, const int baseline
     Graph *G = (dynamic -> index) -> G;
     int ORI = (G -> m);
     for (int &i = (G -> m), &j = (G -> m2); j && m2; ++i, --j, --m2) {
-        if ((i - ORI) % 2000 == 0) {
+        if ((i - ORI) % 1 == 0) {
             END_INSERT = clock();
-            fprintf(logfile, "%d %lf %lld\n", i - ORI, 1.0 * (END_INSERT - START_INSERT) / CLOCKS_PER_SEC, dynamic -> candSize);
-            eprintf("Edge cnt: %d", i - ORI), KEEPTIME(" Time: ", stamp);
+            fprintf(logfile, "%lld\n", clock() - stamp);
+            // fprintf(logfile, "%d %lf %lld\n", i - ORI, 1.0 * (END_INSERT - START_INSERT) / CLOCKS_PER_SEC, dynamic -> candSize);
+            // eprintf("Edge cnt: %d", i - ORI);
+            KEEPTIME(" Time: ", stamp);
         }
         dynamic -> insert(G -> edges[i].first, G -> edges[i].second);        
     }
@@ -87,6 +89,7 @@ inline void testInsert(char *savepath, char *outpath, int m2, const int baseline
     double TT[4] = {0, 0, 0, 0};
     dynamic -> GET_TIME(TT);
     fprintf(logfile, "%lf %lf %lf %lf\n", TT[0], TT[1], TT[2], TT[3]);
+    fprintf(logfile, "%lld\n", (END_INSERT - START_INSERT));
 
     // km -> saveIndex();
     // write(outpath, km -> index, baseline);

@@ -4,6 +4,9 @@
 #include <time.h>
 #include <stdio.h>
 #include <vector>
+#include <random>
+#include <numeric>
+#include <algorithm>
 
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
 #define eputs(str) fputs(str"\n", stderr)

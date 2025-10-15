@@ -74,6 +74,7 @@ namespace ORDINDEX {
         cv.resize(k_max + 1);
         
         for (int i = 1; i <= k_max; ++i) {
+            eprintf("Reading: k = %d\n", i);
             int cnt; fscanf(save, "%d", &cnt);
             cv[i].resize(cnt);
             for (int j = 0; j < cv[i].size(); ++j) {
